@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title if title else "Restaurants Agent" }}</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+                         Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            background: linear-gradient(to bottom right,#d6e8fc, #d6ffef);
+            height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+        }
+
+        .container {
+            background: #e7fbff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            position: relative;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .container h2 {
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #111827;
+        }
+
+        .cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 250px;
+            box-sizing: border-box;
+        }
+
+        .card h3 {
+            margin: 0 0 15px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #111827;
+        }
+
+        .card a {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #3b82f6;
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .card a:hover {
+            background-color: #2563eb;
+        }
+
+        .card a:active {
+            transform: scale(0.98);
+        }
+
+        .no-results {
+            font-size: 1rem;
+            color: #6b7280;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Your Recommended Restaurants</h2>
+
+        {% if matches and matches|length > 0 %}
+        <div class="cards">
+            {% for restaurant in matches %}
+            <div class="card">
+                <h3>{{ restaurant }}</h3>
+                <a href="{{ rest_links[restaurant] if restaurant in rest_links else '#' }}" target="_blank">
+                    View on Maps
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-results">Sorry, no restaurant matches your preferences.</div>
+        {% endif %}
+        <!-- <div class="redo"> Get another recommendation </div> -->
+    </div>
+</body>
+</html>
