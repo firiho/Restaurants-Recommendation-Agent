@@ -19,7 +19,7 @@
         .container {
             background: #e7fbff;
             padding: 40px;
-            padding-bottom: 100px; /* Extra padding at the bottom if needed */
+            padding-bottom: 100px;
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.05);
             max-width: 600px;
@@ -45,60 +45,6 @@
             align-items: center;
         }
 
-        /* Line input style for no-options scenario */
-        input[type=text], select {
-            border: none;
-            background-color: #e7fbff;
-            border-bottom: 2px solid #b9d5ff;
-            padding: 12px;
-            font-size: 1rem;
-            width: 100%;
-            text-align: left; /* Left-align text */
-            margin-bottom: 10px;
-            transition: border-color 0.2s;
-            font-family: inherit;
-        }
-
-        input[type=text]::placeholder {
-            color: #6b7280;
-            font-style: italic;
-        }
-
-        input[type=text]:focus, select:focus {
-            border-color: #3b82f6;
-            outline: none;
-        }
-
-        .instructions {
-            font-size: 0.9rem;
-            color: #6b7280;
-            margin-top: 5px;
-            margin-bottom: 0px; 
-        }
-
-        input[type=submit] {
-            position: absolute;
-            bottom: 20%; 
-            left: 5%;
-            background-color: #3b82f6;
-            color: #ffffff;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 16px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-        }
-
-        input[type=submit]:hover {
-            background-color: #2563eb;
-        }
-
-        input[type=submit]:active {
-            transform: scale(0.98);
-        }
-
-        /* Styles for the clickable options scenario */
         .options-container {
             display: flex;
             flex-direction: column;
@@ -118,13 +64,53 @@
             color: #111827;
             transition: background-color 0.2s, border-color 0.2s;
             width: 100%;
-            max-width: 200px; /* Limit width for a nicer look */
+            max-width: 200px; 
             text-align: left;
         }
 
         .option-card:hover {
             background-color: #d6ffef;
             border-color: #89c8bc;
+        }
+
+        .message {
+            color: #b91c1c;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .icon-button:hover {
+            background-color: #d6ffef;
+        }
+
+        .icon-button svg {
+            width: 24px;
+            height: 24px;
+            stroke: #111827;
+            fill: none;
+            stroke-width: 2;
         }
 
         @keyframes fadeIn {
@@ -136,15 +122,19 @@
 <body>
     <div class="container">
         <form method="post" id="questionForm">
+            {% if message %}
+            <div class="message">{{ message }}</div>
+            {% endif %}
+
             <h2>{{ question_prompt }}</h2>
-            
+
             {% for key, value in previous_answers.items() %}
             <input type="hidden" name="{{ key }}" value="{{ value }}" />
             {% endfor %}
 
-            {% if options %}
-            <!-- When options are available, show clickable vertical options and no "Next" or instructions -->
+            <input type="hidden" name="step_idx" value="{{ step_idx }}" />
             <input type="hidden" name="{{ current_key }}" id="chosenOption" />
+            <input type="hidden" name="action" id="actionField" value="next" />
 
             <div class="options-container">
                 {% for opt in options %}
@@ -153,19 +143,44 @@
                 </div>
                 {% endfor %}
             </div>
-            {% else %}
-            <!-- If no options, fallback to text input with Next button -->
-            <input type="text" name="{{ current_key }}" placeholder="Type your answer..." required />
-            <div class="instructions">Press Enter or click "Next"</div>
-            <input type="submit" value="Next" />
-            {% endif %}
+
+            <div class="controls">
+                {% if step_idx > 0 %}
+                <!-- Back button (left aligned) -->
+                <button type="button" class="icon-button" onclick="goBack()" title="Go Back">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M15 5l-7 7 7 7" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </button>
+                
+                <!-- Restart button (right aligned) -->
+                <button type="button" class="icon-button" onclick="restart()" title="Restart">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M2 12a10 10 0 1010-10" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M2 2v4h4" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </button>
+                {% else %}
+                <div></div>
+                {% endif %}
+            </div>
         </form>
     </div>
 
     <script>
     function selectOption(value) {
-        // Set the chosen option and submit the form automatically
         document.getElementById('chosenOption').value = value;
+        document.getElementById('actionField').value = 'next';
+        document.getElementById('questionForm').submit();
+    }
+
+    function goBack() {
+        document.getElementById('actionField').value = 'back';
+        document.getElementById('questionForm').submit();
+    }
+
+    function restart() {
+        document.getElementById('actionField').value = 'restart';
         document.getElementById('questionForm').submit();
     }
     </script>
